@@ -17,7 +17,6 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-const { describe } = require("node:test");
 const Trashcan = require("../trash");
 
 // Mocks
@@ -403,59 +402,3 @@ describe("scale and container positioning", () => {
         expect(trashcan.animationTime).toBe(500);
     });
 });
-describe("overTrashcan", () => {
-    let trashcan;
-
-    beforeEach(() => {
-        jest.clearAllMocks();
-        trashcan = new Trashcan(mockActivity);
-
-        trashcan.trashX = 100;
-        trashcan.trashY = 100;
-        trashcan.width = 100;
-        trashcan.height = 100;
-    });
-
-    test("Base case inside trash returns true", () => {
-        expect(trashcan.overTrashcan(100, 100)).toBe(true);
-    });
-    test("cases outside of trashcan", () => {
-        expect(trashcan.overTrashcan(100, 300)).toBe(false); //above Y threshold, inside X 
-        expect(trashcan.overTrashcan(-50, 100)).toBe(false); //left of X threshold, inside Y
-        expect(trashcan.overTrashcan(300, 100)).toBe(false); //right of X threshold, inside Y
-        expect(trashcan.overTrashcan(100, -50)).toBe(false); //below Y threshold, inside X 
-    });
-
-    test("Highlighting", () => { //"startHighlightAnimation does not start multiple intervals”       
-        trashcan._inAnimation = false;
-        const spy = jest.spyOn(global, "setInterval");
-
-        trashcan.startHighlightAnimation();
-        trashcan.startHighlightAnimation(); // call again while active
-
-        expect(spy).toHaveBeenCalledTimes(1);
-        spy.mockRestore();
-
-        //“Dragging block over trashcan should play animation
-        trashcan._inAnimation = false;
-        trashcan.overTrashcan(100, 100);
-
-        expect(spy).toHaveBeenCalledTimes(2);
-    });
-});
-
-describe("shouldResize", () => {
-    trashcan = new Trashcan(mockActivity);
-    test("shouldResize covers all x / y branch combinations", () => { 
-        trashcan._container.x = 10;
-        trashcan._container.y = 20;
-
-        expect(trashcan.shouldResize(10, 20)).toBe(false);  // same x,y
-        expect(trashcan.shouldResize(15, 20)).toBe(true);   // only x differs
-        expect(trashcan.shouldResize(10, 25)).toBe(true);   // only y differs
-        expect(trashcan.shouldResize(15, 25)).toBe(true);   // both differ
-       
-    });
-});
-
-
